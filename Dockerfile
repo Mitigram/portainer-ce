@@ -23,7 +23,7 @@ RUN tarinstall.sh -v -x gron https://github.com/tomnomnom/gron/releases/download
 # glibc.
 FROM yanzinetworks/alpine:3.13.5
 
-# Copy our dependencies from other layers, and fix apk-accessible dependencies.
+# Copy our dependencies from other stages, and fix apk-accessible dependencies.
 # Arrange to copy the binaries that portainer depends on, as well as the assets,
 # to the same location as in the original image. This is because the
 # implementation looks for binaries at the assets path.
@@ -42,7 +42,9 @@ ENV PORTAINER_PORT 9000
 EXPOSE 8000 ${PORTAINER_PORT}
 
 # Wrap everything behind tini to enable proper signalling as we will be spawning
-# temporary processes in the background.
+# temporary processes in the background. We respected the placement of binaries
+# directly under the root of the disk, as in the original image, so we have to
+# tell our entrypoint where portainer is located.
 ENTRYPOINT [  "tini", "--", \
                 "portainer.sh", \
                   "--settings", "/usr/local/share/portainer/etc/settings.json", \
