@@ -23,20 +23,27 @@ RUN tarinstall.sh -v -x gron https://github.com/tomnomnom/gron/releases/download
 # glibc.
 FROM yanzinetworks/alpine:3.13.5
 
-# Copy our dependencies from other layers, and fix apk-accessible dependencies
+# Copy our dependencies from other layers, and fix apk-accessible dependencies.
+# Arrange to copy the binaries that portainer depends on, as well as the assets,
+# to the same location as in the original image. This is because the
+# implementation looks for binaries at the assets path.
 COPY --from=gron /usr/local/bin/gron /usr/local/bin/
-COPY --from=portainer /portainer /usr/local/bin/
-RUN apk --no-cache add apache2-utils tini curl
+COPY --from=portainer /portainer /docker /docker-compose /kompose /kubectl /
+COPY --from=portainer /public /public/
+RUN apk --no-cache add apache2-utils tini curl jq
 
 # Recreate some well-structured local installation under /usr/local
 COPY lib/mg.sh/*.sh /usr/local/share/portainer/lib/
 COPY settings.json /usr/local/share/portainer/etc/
 COPY *.sh /usr/local/bin/
 
-EXPOSE 8000 9000
+WORKDIR /
+ENV PORTAINER_PORT 9000
+EXPOSE 8000 ${PORTAINER_PORT}
 
 # Wrap everything behind tini to enable proper signalling as we will be spawning
 # temporary processes in the background.
 ENTRYPOINT [  "tini", "--", \
-                "entrypoint.sh", \
-                  "--settings", "/usr/local/share/portainer/etc/settings.json" ]
+                "portainer.sh", \
+                  "--settings", "/usr/local/share/portainer/etc/settings.json", \
+                  "--binary", "/portainer" ]
