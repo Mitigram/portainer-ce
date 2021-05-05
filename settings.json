@@ -1,0 +1,67 @@
+{
+  "AllowBindMountsForRegularUsers": false,
+  "AllowContainerCapabilitiesForRegularUsers": true,
+  "AllowDeviceMappingForRegularUsers": true,
+  "AllowHostNamespaceForRegularUsers": true,
+  "AllowPrivilegedModeForRegularUsers": false,
+  "AllowStackManagementForRegularUsers": true,
+  "AllowVolumeBrowserForRegularUsers": true,
+  "AuthenticationMethod": 1,
+  "BlackListedLabels": [
+    {
+      "name": "",
+      "value": ""
+    }
+  ],
+  "EdgeAgentCheckinInterval": 5,
+  "EnableEdgeComputeFeatures": true,
+  "EnableHostManagementFeatures": true,
+  "EnableTelemetry": false,
+  "LDAPSettings": {
+    "AnonymousMode": true,
+    "AutoCreateUsers": true,
+    "GroupSearchSettings": [
+      {
+        "GroupAttribute": "",
+        "GroupBaseDN": "",
+        "GroupFilter": ""
+      }
+    ],
+    "Password": "",
+    "ReaderDN": "",
+    "SearchSettings": [
+      {
+        "BaseDN": "",
+        "Filter": "",
+        "UserNameAttribute": ""
+      }
+    ],
+    "StartTLS": true,
+    "TLSConfig": {
+      "TLS": true,
+      "TLSCACert": "",
+      "TLSCert": "",
+      "TLSKey": "",
+      "TLSSkipVerify": false
+    },
+    "URL": ""
+  },
+  "LogoURL": "",
+  "OAuthSettings": {
+    "AccessTokenURI": "",
+    "AuthorizationURI": "",
+    "ClientID": "",
+    "ClientSecret": "",
+    "DefaultTeamID": 0,
+    "OAuthAutoCreateUsers": true,
+    "RedirectURI": "",
+    "ResourceURI": "",
+    "Scopes": "",
+    "UserIdentifier": ""
+  },
+  "SnapshotInterval": "5m",
+  "TemplatesURL": "https://raw.githubusercontent.com/portainer/templates/master/templates.json",
+  "UserSessionTimeout": "5m",
+  "displayDonationHeader": true,
+  "displayExternalContributors": true
+}

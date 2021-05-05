@@ -1,0 +1,6 @@
+[submodule "lib/mg.sh"]
+	path = lib/mg.sh
+	url = git@github.com:Mitigram/mg.sh.git
+[submodule "lib/bininstall"]
+	path = lib/bininstall
+	url = git@github.com:efrecon/bininstall.git
