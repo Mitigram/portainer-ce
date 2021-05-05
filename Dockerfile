@@ -1,10 +1,10 @@
-# FIRST LAYER: Portainer itself. The version to install can be controlled
+# FIRST STAGE: Portainer itself. The version to install can be controlled
 # through the build-time argument PORTAINER_VERSION.
 ARG PORTAINER_VERSION=latest
 FROM portainer/portainer-ce:${PORTAINER_VERSION} AS portainer
 
 
-# SECOND LAYER: gron makes JSON greppable and is able to convert back to JSON
+# SECOND STAGE: gron makes JSON greppable and is able to convert back to JSON
 # from its internal greppable representation. The version to install can be
 # controlled through the build-time argument GRON_VERSION.
 FROM alpine:3.13.5 AS gron
@@ -17,7 +17,7 @@ ARG GRON_VERSION=0.6.1
 RUN tarinstall.sh -v -x gron https://github.com/tomnomnom/gron/releases/download/v${GRON_VERSION#v*}/gron-linux-amd64-${GRON_VERSION#v*}.tgz
 
 
-# FINAL LAYER: We build upon a glibc-compatible alpine in order to be able to
+# FINAL STAGE: We build upon a glibc-compatible alpine in order to be able to
 # access Alpine's library of packages and install the ones we need for the
 # implementation of our entrypoint and initialisation logic. gron requires
 # glibc.
