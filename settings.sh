@@ -259,7 +259,7 @@ fi
 if [ -n "$PORTAINER_TEAMS" ]; then
   sed -E 's/^[[:space:]]*#.*$//g' "$PORTAINER_TEAMS" | while IFS= read -r team; do
     if [ -n "$team" ]; then
-      team_create "$team"
+      team_create "$team" > /dev/null
     fi
   done
 fi
