@@ -1,0 +1,13 @@
+# Files modelled after this one can be used to create users and associate them
+# to teams. Empty lines and lines starting with a hash-mark will be ignored.
+# Otherwise lines should contain a number of colon-separated fields. In order:
+# - The name of the user to create
+# - The password of the user, when the letter x, a password will be generated
+#   and logged.
+# - The role id of the user: 1 (admin) or 2 (regular user)
+# - The list of teams that this user belongs to, separated by commas. Teams that
+#   do not exist yet will be created.
+# The file must end with an empty line.
+
+emmanuel:x:1:devs,admins/1,pms
+leunamme:x:2:devs,testers

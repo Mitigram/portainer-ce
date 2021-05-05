@@ -1,0 +1,8 @@
+# Teams can be created automatically using files modelled after this one. Empty
+# lines and lines starting with a hash-mark will be ignored. Otherwise, each
+# line should contain the name of a team to be created. The file must end with
+# an empty line.
+
+devs
+admins
+testers
