@@ -39,6 +39,7 @@ COPY *.sh /usr/local/bin/
 
 WORKDIR /
 ENV PORTAINER_PORT 9000
+ENV PORTAINER_SETTINGS /usr/local/share/portainer/etc/settings.json
 EXPOSE 8000 ${PORTAINER_PORT}
 
 # Wrap everything behind tini to enable proper signalling as we will be spawning
@@ -47,5 +48,4 @@ EXPOSE 8000 ${PORTAINER_PORT}
 # tell our entrypoint where portainer is located.
 ENTRYPOINT [  "tini", "--", \
                 "portainer.sh", \
-                  "--settings", "/usr/local/share/portainer/etc/settings.json", \
                   "--binary", "/portainer" ]
