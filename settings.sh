@@ -270,6 +270,7 @@ if [ -n "$PORTAINER_USERS" ]; then
       username=$(printf %s\\n "$line" | cut -d ":" -f 1)
       password=$(printf %s\\n "$line" | cut -d ":" -f 2)
       role=$(printf %s\\n "$line" | cut -d ":" -f 3); # 1: admin, 2: regular user
+      [ -z "$role" ] && role=2
       teams=$(printf %s\\n "$line" | cut -d ":" -f 4)
 
       if portainer_api GET /users | jq -cr '.[].Username' | grep -q "$username"; then
