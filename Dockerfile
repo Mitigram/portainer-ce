@@ -23,6 +23,19 @@ RUN tarinstall.sh -v -x gron https://github.com/tomnomnom/gron/releases/download
 # glibc.
 FROM yanzinetworks/alpine:3.13.5
 
+
+# OCI Annotation: https://github.com/opencontainers/image-spec/blob/master/annotations.md
+LABEL org.opencontainers.image.title="portainer-ce"
+LABEL org.opencontainers.image.description="Easily configurable Portainer"
+LABEL org.opencontainers.image.authors="Emmanuel Frecon <efrecon+github@gmail.com>"
+LABEL org.opencontainers.image.url="https://github.com/Mitigram/portainer-ce"
+LABEL org.opencontainers.image.documentation="https://github.com/Mitigram/portainer-ce/README.md"
+LABEL org.opencontainers.image.source="https://github.com/Mitigram/portainer-ce"
+LABEL org.opencontainers.image.version="$SRCTAG"
+LABEL org.opencontainers.image.created="$BUILD_DATE"
+LABEL org.opencontainers.image.vendor="Mitigram AB"
+LABEL org.opencontainers.image.licenses="MIT"
+
 # Copy our dependencies from other stages, and fix apk-accessible dependencies.
 # Arrange to copy the binaries that portainer depends on, as well as the assets,
 # to the same location as in the original image. This is because the

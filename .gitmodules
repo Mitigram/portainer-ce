@@ -4,3 +4,6 @@
 [submodule "lib/bininstall"]
 	path = lib/bininstall
 	url = git@github.com:efrecon/bininstall.git
+[submodule "hooks/reg-tags"]
+	path = hooks/reg-tags
+	url = git@github.com:efrecon/reg-tags.git
