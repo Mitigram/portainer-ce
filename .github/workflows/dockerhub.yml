@@ -1,0 +1,28 @@
+name: dockerhub
+
+on:
+  push:
+    branches:
+      - 'feature/github-action'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+      -
+        name: Build missing images
+        env:
+          DOCKER_REPO: mitigram/portainer-ce
+          SOURCE_COMMIT: github.sha
+        run: ./hooks/build
