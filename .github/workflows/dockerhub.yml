@@ -1,0 +1,52 @@
+name: dockerhub
+
+on:
+  push:
+    branches:
+      - 'main'
+  schedule:
+      - cron: "0 0 * * *"
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: network=host
+      -
+        name: Build missing images
+        env:
+          DOCKER_REPO: mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: ./hooks/build
+      -
+        name: Push updated images
+        env:
+          DOCKER_REPO: mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          printf %s\\n "$DOCKERHUB_PASSWORD" | docker login -u $DOCKERHUB_USERNAME --password-stdin \
+            && ./hooks/push \
+            && docker logout
+      -
+        # Note: This uses the password, not the token as this action would
+        # otherwise not work.
+        name: Update repo description
+        uses: peter-evans/dockerhub-description@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: mitigram/portainer-ce
