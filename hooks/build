@@ -13,7 +13,7 @@ token=$(img_auth "$DOCKER_REPO")
 # builds upon, rebuild only if relevant. We use the OCI revision annotation to
 # store/detect whenever it is necessary to rebuild.
 for tag in $(img_tags \
-                --filter '^[0-9]+(\.[0-9]+)+$' \
+                --filter '^([0-9]+(\.[0-9]+)+|latest)$' \
                 --verbose \
                 -- \
                 "$BASE_IMAGE"); do
