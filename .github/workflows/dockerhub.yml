@@ -26,5 +26,5 @@ jobs:
         name: Build missing images
         env:
           DOCKER_REPO: mitigram/portainer-ce
-          SOURCE_COMMIT: github.sha
+          SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/build
