@@ -67,7 +67,7 @@ Usage:
     --passwd-file | --password-file
       Path to a file containing the admin user password, usually a Docker
       secret or similar.
-    --portainer | --binary
+    --portainer | --binary | --bin
       Name or path to binary for portainer, defaults to: portainer
     -v | --verbose
       Verbosity level. From error down to debug.
@@ -154,9 +154,9 @@ while [ $# -gt 0 ]; do
     --users=*)
       PORTAINER_USERS="${1#*=}"; shift 1;;
 
-    --portainer | --binary)
+    --portainer | --binary | --bin)
       PORTAINER_BIN=$2; shift 2;;
-    --portainer=* | --binary=*)
+    --portainer=* | --binary=* | --bin=*)
       PORTAINER_BIN="${1#*=}"; shift 1;;
 
     -v | --verbosity | --verbose)
