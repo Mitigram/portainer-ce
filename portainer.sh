@@ -47,7 +47,7 @@ Usage:
       Path to settings file in JSON format. This needs to contain all
       possible keys and their values. Defaults to settings.json in same
       directory as this script.
-    -p | --port
+    -p | --port | --port-number
       Port number at which portainer should listen for UI and API calls.
       Defaults to 9000
     -t | --teams
@@ -111,7 +111,7 @@ PORTAINER_PREFIX=${PORTAINER_PREFIX:-"PORTAINER_"}
 PORTAINER_TEAMS=${PORTAINER_TEAMS:-}
 
 # Port number where portainer should be listening for UI and API calls.
-PORTAINER_PORT=${PORTAINER_PORT:-"9000"}
+PORTAINER_PORT_NUMBER=${PORTAINER_PORT_NUMBER:-"9000"}
 
 # Path to portainer binary, will be looked from $PATH
 PORTAINER_BIN=${PORTAINER_BIN:-"portainer"}
@@ -125,9 +125,9 @@ PORTAINER_USERS=${PORTAINER_USERS:-}
 while [ $# -gt 0 ]; do
   case "$1" in
     -p | --port)
-      PORTAINER_PORT=$2; shift 2;;
+      PORTAINER_PORT_NUMBER=$2; shift 2;;
     --port=*)
-      PORTAINER_PORT="${1#*=}"; shift 1;;
+      PORTAINER_PORT_NUMBER="${1#*=}"; shift 1;;
 
     --passwd | --password)
       PORTAINER_ADMIN_PASSWORD=$2; shift 2;;
@@ -312,7 +312,7 @@ fi
 # and running.
 if [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
   "${PORTAINER_ROOTDIR%/}/settings.sh" \
-    --portainer="http://localhost:${PORTAINER_PORT}/" \
+    --portainer="http://localhost:${PORTAINER_PORT_NUMBER}/" \
     --password-file="$PORTAINER_ADMIN_PASSWORD_FILE" \
     --teams-file="$PORTAINER_TEAMS" \
     --users-file="$PORTAINER_USERS" \
@@ -321,7 +321,7 @@ if [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
     --settings="$tmp_settings" &
 else
   "${PORTAINER_ROOTDIR%/}/settings.sh" \
-    --portainer="http://localhost:${PORTAINER_PORT}/" \
+    --portainer="http://localhost:${PORTAINER_PORT_NUMBER}/" \
     --password="$PORTAINER_PASSWORD" \
     --teams-file="$PORTAINER_TEAMS" \
     --users-file="$PORTAINER_USERS" \
@@ -332,13 +332,13 @@ fi
 
 # Now replace this process with portainer itself, passing all options that were
 # after the --
-log_info "Running ${PORTAINER_BIN} $* --bind=:${PORTAINER_PORT} (password info omitted) from $(pwd)"
+log_info "Running ${PORTAINER_BIN} $* --bind=:${PORTAINER_PORT_NUMBER} (password info omitted) from $(pwd)"
 if [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
   exec ${PORTAINER_BIN} "$@" \
-        --bind=":${PORTAINER_PORT}" \
+        --bind=":${PORTAINER_PORT_NUMBER}" \
         --admin-password-file="$PORTAINER_ADMIN_PASSWORD_FILE"
 else
   exec ${PORTAINER_BIN} "$@" \
-        --bind=":${PORTAINER_PORT}" \
+        --bind=":${PORTAINER_PORT_NUMBER}" \
         --admin-password="$PORTAINER_ADMIN_PASSWORD"
 fi

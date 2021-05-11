@@ -124,9 +124,11 @@ which will use the API to initialise the portainer instance. These are:
 
 Two variables affect interaction with the main `portainer` binary:
 
-+ `PORTAINER_PORT` will be the port at which the instance will listen to UI and
-  API calls. It defaults to `9000`. This option **replaces** the `--bind` option
-  of the regular `portainer` binary.
++ `PORTAINER_PORT_NUMBER` will be the port at which the instance will listen to
+  UI and API calls. It defaults to `9000`. This option **replaces** the `--bind`
+  option of the regular `portainer` binary. This variable is not called
+  `PORTAINER_PORT` on purpose to avoid naming conventions clashes when running
+  in k8s.
 + `PORTAINER_BIN` should container the path (or name to look in the `PATH`) of
   the `portainer` binary. It defaults to `portainer`.
 

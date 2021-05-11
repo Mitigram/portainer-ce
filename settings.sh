@@ -91,7 +91,7 @@ PORTAINER_ADMIN_PASSWORD_FILE=${PORTAINER_ADMIN_PASSWORD_FILE:-}
 PORTAINER_SETTINGS=${PORTAINER_SETTINGS:-${PORTAINER_ROOTDIR%/}/settings.json}
 
 # URL root of the portainer instance to talk to
-PORTAINER_ROOTURL=${PORTAINER_ROOTURL:-"http://localhost:${PORTAINER_PORT:-9000}/"}
+PORTAINER_ROOTURL=${PORTAINER_ROOTURL:-"http://localhost:${PORTAINER_PORT_NUMBER:-9000}/"}
 
 # Comma separated list of teams to setup. This can be used when setting up LDAP
 # and arranging for group membership to transfer into team membership

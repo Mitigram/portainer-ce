@@ -51,9 +51,9 @@ COPY settings.json /usr/local/share/portainer/etc/
 COPY *.sh /usr/local/bin/
 
 WORKDIR /
-ENV PORTAINER_PORT 9000
+ENV PORTAINER_PORT_NUMBER 9000
 ENV PORTAINER_SETTINGS /usr/local/share/portainer/etc/settings.json
-EXPOSE 8000 ${PORTAINER_PORT}
+EXPOSE 8000 ${PORTAINER_PORT_NUMBER}
 
 # Wrap everything behind tini to enable proper signalling as we will be spawning
 # temporary processes in the background. We respected the placement of binaries
