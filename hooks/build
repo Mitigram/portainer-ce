@@ -3,6 +3,10 @@
 # shellcheck disable=SC1091
 . "$(dirname "$0")/reg-tags/image_tags.sh"
 
+# Set good defaults to allow script to be run by hand
+DOCKER_REPO=${DOCKER_REPO:-"mitigram/portainer-ce"}
+SOURCE_COMMIT=${SOURCE_COMMIT:-$(git log --no-decorate|grep '^commit'|head -n 1| awk '{print $2}')}
+
 # Base image to follow
 BASE_IMAGE=portainer/portainer-ce
 
