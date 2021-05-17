@@ -274,7 +274,8 @@ if [ -n "$PORTAINER_USERS" ]; then
       teams=$(printf %s\\n "$line" | cut -d ":" -f 4)
 
       if portainer_api GET /users | jq -cr '.[].Username' | grep -q "$username"; then
-        log_debug "User $username already exists at $PORTAINER_ROOTURL"
+        id=$(portainer_api GET /users | jq -cr ".[] | select(.Username == \"$username\") | .Id")
+        log_debug "User $username already exists with id $id at $PORTAINER_ROOTURL"
       else
         if [ "$password" = "x" ]; then
           password=$(pwdgen 24)
@@ -300,7 +301,7 @@ if [ -n "$PORTAINER_USERS" ]; then
 fi
 
 printf %s\\n "$ZAP_FILES" | tr  ',' '\n' | while IFS= read -r fpath; do
-  if [ -f "$fpath" ]; then
+  if [ -f "$fpath" ]; then/
     log_info "Removing temporary file $fpath"
     rm -f "$fpath"
   fi
