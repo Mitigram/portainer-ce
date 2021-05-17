@@ -301,7 +301,7 @@ if [ -n "$PORTAINER_USERS" ]; then
 fi
 
 printf %s\\n "$ZAP_FILES" | tr  ',' '\n' | while IFS= read -r fpath; do
-  if [ -f "$fpath" ]; then/
+  if [ -f "$fpath" ]; then
     log_info "Removing temporary file $fpath"
     rm -f "$fpath"
   fi
