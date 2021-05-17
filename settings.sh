@@ -34,7 +34,7 @@ module() {
 }
 
 # Source in all relevant modules. This is where most of the "stuff" will occur.
-module log controls
+module log locals controls
 
 # shellcheck disable=2034 # Usage string is used by log module on errors
 MG_USAGE="
