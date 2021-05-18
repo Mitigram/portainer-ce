@@ -66,7 +66,6 @@ PORTAINER_USERS=${PORTAINER_USERS:-}
 # Comma separated list of files to remove upon initialisation.
 ZAP_FILES=
 
-MG_VERBOSITY=trace
 parseopts \
   --main \
   --synopsis "$MG_CMDNAME will connect to a running portainer and change its settings, and create teams and users." \
