@@ -34,33 +34,7 @@ module() {
 }
 
 # Source in all relevant modules. This is where most of the "stuff" will occur.
-module log
-
-# shellcheck disable=2034 # Usage string is used by log module on errors
-MG_USAGE="
-  $MG_CMDNAME will connect to a running portainer and execute an API call
-Usage:
-  $MG_CMDNAME [-option arg] verb path [curl options]
-  where all dash-led single/double options are as follows.
-    -p | --portainer | --url
-      Root URL where portainer is available. Defaults to http://localhost:9000/
-    --user | --username
-      Name of the user to authenticate with at the portainer API.
-    --passwd | --password
-      Cleartext password for the user, you should probably not use this.
-    --passwd-file | --password-file
-      Path to a file containing the user password, usually a Docker secret or
-      similar.
-    -v | --verbose
-      Verbosity level. From error down to debug.
-    -h | --help
-      Print this help and exit
-Description:
-  This script uses curl to exercise the Portainer API.
-
-  It will authenticate and perform the HTTP request with the verb, e.g. GET,
-  POST to the API REST path, e.g. /settings/public or /status (leading slash is
-  optional). All remaining options will be blindly passed to curl."
+module log locals options
 
 # Name of the user to authenticate with at the Portainer instance
 PORTAINER_ADMIN_USERNAME=${PORTAINER_ADMIN_USERNAME:-"admin"}
@@ -74,50 +48,31 @@ PORTAINER_ADMIN_PASSWORD_FILE=${PORTAINER_ADMIN_PASSWORD_FILE:-}
 # URL root of the portainer instance to talk to
 PORTAINER_ROOTURL=${PORTAINER_ROOTURL:-"http://localhost:${PORTAINER_PORT_NUMBER:-9000}/"}
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --user | --username)
-      PORTAINER_ADMIN_USERNAME=$2; shift 2;;
-    --user=* | --username=*)
-      PORTAINER_ADMIN_USERNAME="${1#*=}"; shift 1;;
+parseopts \
+  --main \
+  --synopsis "$MG_CMDNAME will connect to a running portainer and execute an API call" \
+  --usage "$MG_CMDNAME [options] [--] verb path [curl options]" \
+  --description "This script uses curl to exercise the Portainer API.
 
-    --passwd | --password)
-      PORTAINER_ADMIN_PASSWORD=$2; shift 2;;
-    --passwd=* | --password=*)
-      PORTAINER_ADMIN_PASSWORD="${1#*=}"; shift 1;;
+It will authenticate and perform the HTTP request with the verb, e.g. GET,
+POST to the API REST path, e.g. /settings/public or /status (leading slash is
+optional). All remaining options will be blindly passed to curl." \
+  --prefix PORTAINER \
+  --shift _begin \
+  --options \
+    p,portainer,url OPTION ROOTURL - "Root URL where portainer is available." \
+    user,username OPTION ADMIN_USERNAME - "Name of the user to authenticate with at the portainer API." \
+    passwd,password OPTION ADMIN_PASSWORD - "Cleartext password for the user, you should probably not use this." \
+    passwd-file,password-file OPTION ADMIN_PASSWORD_FILE - "Path to a file containing the admin user password, usually a Docker secret or similar." \
+    h,help FLAG @HELP - "Print this help and exit" \
+  -- "$@"
 
-    --passwd-file | --password-file)
-      PORTAINER_ADMIN_PASSWORD_FILE=$2; shift 2;;
-    --passwd-file=* | --password-file=*)
-      PORTAINER_ADMIN_PASSWORD_FILE="${1#*=}"; shift 1;;
-
-    -p | --portainer | --url)
-      PORTAINER_ROOTURL=$2; shift 2;;
-    --portainer=* | --url=*)
-      PORTAINER_ROOTURL="${1#*=}"; shift 1;;
-
-    -v | --verbosity | --verbose)
-      MG_VERBOSITY=$2; shift 2;;
-    --verbosity=* | --verbose=*)
-      # shellcheck disable=2034 # Comes from log module
-      MG_VERBOSITY="${1#*=}"; shift 1;;
-
-    -h | --help)
-      usage "" 0;;
-
-    --)
-      shift; break;;
-    -*)
-      usage "Unknown option: $1 !";;
-    *)
-      break;;
-  esac
-done
+# shellcheck disable=SC2154  # Var is set by parseopts
+shift "$_begin"
 
 if [ -n "$PORTAINER_ADMIN_PASSWORD" ] && [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
   die "You cannot specify both a password and a password file"
 fi
-
 
 # Sort out passwords. Arrange for the variable PORTAINER_PASSWORD to always
 # contain the password for the administrator in cleartext, whenever possible.

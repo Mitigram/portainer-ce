@@ -34,48 +34,7 @@ module() {
 }
 
 # Source in all relevant modules. This is where most of the "stuff" will occur.
-module log locals controls
-
-# shellcheck disable=2034 # Usage string is used by log module on errors
-MG_USAGE="
-  $MG_CMDNAME will connect to a running portainer and change its settings,
-  and create teams and users.
-Usage:
-  $MG_CMDNAME [-option arg]...
-  where all dash-led single/double options are as follows.
-    -s | --settings
-      Path to settings file in JSON format. This needs to contain all
-      possible keys and their values. Defaults to settings.json in same
-      directory as this script.
-    -p | --portainer | --url
-      Root URL where portainer is available. Defaults to http://localhost:9000/
-    -t | --teams | --teams-file
-      Path to a file containing team names, one per line (empty lines and lines
-      starting with a # ignored)
-    -u | --users | --users-file
-      Path to a file containing a list of users to create. Apart from comments
-      and blank lines, lines should contain colon separated fields:
-      username:password:role:teams. When password is x, one will be generated.
-      role is the role of the user in Portainer: 1: admin, 2: regular user.
-      teams is a colon separated list of teams specifications: team/role, where
-      the role defaults to 2 (regular member), otherwise 1: leader.
-    --user | --username
-      Name of the user to authenticate with at the portainer API.
-    --passwd | --password
-      Cleartext password for the user, you should probably not use this.
-    --passwd-file | --password-file
-      Path to a file containing the user password, usually a Docker secret or
-      similar.
-    --remove
-      Comma separated list of file paths to remove once initialisation has
-      been performed.
-    -v | --verbose
-      Verbosity level. From error down to debug.
-    -h | --help
-      Print this help and exit
-Description:
-  This script is designed to be run from the main Docker entrypoint script
-  called portainer.sh. You should probably not call it manually."
+module log locals controls options
 
 # Name of the user to authenticate with at the Portainer instance
 PORTAINER_ADMIN_USERNAME=${PORTAINER_ADMIN_USERNAME:-"admin"}
@@ -107,65 +66,27 @@ PORTAINER_USERS=${PORTAINER_USERS:-}
 # Comma separated list of files to remove upon initialisation.
 ZAP_FILES=
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --user | --username)
-      PORTAINER_ADMIN_USERNAME=$2; shift 2;;
-    --user=* | --username=*)
-      PORTAINER_ADMIN_USERNAME="${1#*=}"; shift 1;;
+MG_VERBOSITY=trace
+parseopts \
+  --main \
+  --synopsis "$MG_CMDNAME will connect to a running portainer and change its settings, and create teams and users." \
+  --description "This script is designed to be run from the main Docker entrypoint script called portainer.sh. You should probably not call it manually." \
+  --prefix PORTAINER \
+  --shift _begin \
+  --options \
+    s,settings OPTION SETTINGS - "Path to settings file in JSON format. This needs to contain all possible keys and their values. Defaults to settings.json in same directory as this script." \
+    p,portainer,url OPTION ROOTURL - "Root URL where portainer is available." \
+    t,teams,teams-file OPTION TEAMS - "Path to a file containing team names, one per line (empty lines and lines starting with a # ignored)" \
+    u,users,users-file OPTION USERS - "Path to a file containing a list of users to create. Apart from comments and blank lines, lines should contain colon separated fields: username:password:role:teams. When password is x, one will be generated. role is the role of the user in Portainer: 1: admin, 2: regular user. teams is a colon separated list of teams specifications: team/role, where the role defaults to 2 (regular member), otherwise 1: leader." \
+    user,username OPTION ADMIN_USERNAME - "Name of the user to authenticate with at the portainer API." \
+    passwd,password OPTION ADMIN_PASSWORD - "Cleartext password for the user, you should probably not use this." \
+    passwd-file,password-file OPTION ADMIN_PASSWORD_FILE - "Path to a file containing the admin user password, usually a Docker secret or similar." \
+    remove OPTION,NOPREFIX ZAP_FILES - "Comma separated list of file paths to remove once initialisation has been performed." \
+    h,help FLAG @HELP - "Print this help and exit" \
+  -- "$@"
 
-    --passwd | --password)
-      PORTAINER_ADMIN_PASSWORD=$2; shift 2;;
-    --passwd=* | --password=*)
-      PORTAINER_ADMIN_PASSWORD="${1#*=}"; shift 1;;
-
-    --passwd-file | --password-file)
-      PORTAINER_ADMIN_PASSWORD_FILE=$2; shift 2;;
-    --passwd-file=* | --password-file=*)
-      PORTAINER_ADMIN_PASSWORD_FILE="${1#*=}"; shift 1;;
-
-    -s | --settings)
-      PORTAINER_SETTINGS=$2; shift 2;;
-    --settings=*)
-      PORTAINER_SETTINGS="${1#*=}"; shift 1;;
-
-    -p | --portainer | --url)
-      PORTAINER_ROOTURL=$2; shift 2;;
-    --portainer=* | --url=*)
-      PORTAINER_ROOTURL="${1#*=}"; shift 1;;
-
-    -t | --teams-file | --teams)
-      PORTAINER_TEAMS=$2; shift 2;;
-    --teams-file=* | --teams=*)
-      PORTAINER_TEAMS="${1#*=}"; shift 1;;
-
-    -u | --users-file | --users)
-      PORTAINER_USERS=$2; shift 2;;
-    --users-file=* | --users=*)
-      PORTAINER_USERS="${1#*=}"; shift 1;;
-
-    --remove)
-      ZAP_FILES=$2; shift 2;;
-    --remove=*)
-      ZAP_FILES="${1#*=}"; shift 1;;
-
-    -v | --verbosity | --verbose)
-      MG_VERBOSITY=$2; shift 2;;
-    --verbosity=* | --verbose=*)
-      # shellcheck disable=2034 # Comes from log module
-      MG_VERBOSITY="${1#*=}"; shift 1;;
-
-    -h | --help)
-      usage "" 0;;
-
-    --)
-      shift; break;;
-    -*)
-      usage "Unknown option: $1 !";;
-    *)
-      break;;
-  esac
-done
+# shellcheck disable=SC2154  # Var is set by parseopts
+shift "$_begin"
 
 if [ -n "$PORTAINER_ADMIN_PASSWORD" ] && [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
   die "You cannot specify both a password and a password file"
@@ -211,9 +132,9 @@ portainer_api() {
   if [ -n "$JWT" ]; then
     request=${1:-"GET"}
     api=${2:-}
-    shift 2
 
     if [ -n "$api" ]; then
+      shift 2
       curl -sSL \
         --header "Content-Type: application/json" \
         --header "Authorization: Bearer $JWT" \

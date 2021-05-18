@@ -34,55 +34,7 @@ module() {
 }
 
 # Source in all relevant modules. This is where most of the "stuff" will occur.
-module log
-
-# shellcheck disable=2034 # Usage string is used by log module on errors
-MG_USAGE="
-  $MG_CMDNAME will initialise a portainer installation from environment
-  variables and an option JSON file
-Usage:
-  $MG_CMDNAME [-option arg] -- [portainer CLI options]
-  where all dash-led single/double options are as follows.
-    -s | --settings
-      Path to settings file in JSON format. This needs to contain all
-      possible keys and their values. Defaults to settings.json in same
-      directory as this script.
-    -p | --port | --port-number
-      Port number at which portainer should listen for UI and API calls.
-      Defaults to 9000
-    -t | --teams
-      Comma separated list of teams to create. When the value starts with
-      a @ sign, the remaining should be the path to a file containing team
-      names, one per line (empty lines and lines starting with a # ignored)
-    -u | --users
-      Path to a file containing a list of users to create. Apart from comments
-      and blank lines, lines should contain colon separated fields:
-      username:password:role:teams. When password is x, one will be generated.
-      role is the role of the user in Portainer: 1: admin, 2: regular user.
-      teams is a colon separated list of teams specifications: team/role, where
-      the role defaults to 2 (regular member), otherwise 1: leader.
-    --passwd | --password
-      Cleartext password, you should probably not use this. When empty a
-      password will be generated unless a file is specified.
-    --passwd-file | --password-file
-      Path to a file containing the admin user password, usually a Docker
-      secret or similar.
-    --portainer | --binary | --bin
-      Name or path to binary for portainer, defaults to: portainer
-    -v | --verbose
-      Verbosity level. From error down to debug.
-    -h | --help
-      Print this help and exit
-Description:
-  Will replace all environment variables which name starts with PORTAINER_
-  and the rest is constructed as the JSON path, all in uppercase, with the .
-  replaced by a _ in the settings.
-
-  Once settings have been generated, portainer will be started and settings will
-  be applied, and teams and users created. Everything after the -- is blindly
-  passed to portainer, but you shouldn't pass the option --bind or the options
-  to set the password (no check is performed!).
-"
+module log locals options
 
 # Clear-text password for the user. Try avoiding tu use this!
 PORTAINER_ADMIN_PASSWORD=${PORTAINER_ADMIN_PASSWORD:-}
@@ -122,60 +74,33 @@ PORTAINER_BIN=${PORTAINER_BIN:-"portainer"}
 # When password is an x, a password will be generated.
 PORTAINER_USERS=${PORTAINER_USERS:-}
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    -p | --port)
-      PORTAINER_PORT_NUMBER=$2; shift 2;;
-    --port=*)
-      PORTAINER_PORT_NUMBER="${1#*=}"; shift 1;;
+parseopts \
+  --main \
+  --synopsis "$MG_CMDNAME will initialise a portainer installation from environment variables and an option JSON file" \
+  --usage "$MG_CMDNAME [options] -- [portainer CLI options]" \
+  --description "Will replace all environment variables which name starts with PORTAINER_
+and the rest is constructed as the JSON path, all in uppercase, with the .
+replaced by a _ in the settings.
 
-    --passwd | --password)
-      PORTAINER_ADMIN_PASSWORD=$2; shift 2;;
-    --passwd=* | --password=*)
-      PORTAINER_ADMIN_PASSWORD="${1#*=}"; shift 1;;
+Once settings have been generated, portainer will be started and settings will
+be applied, and teams and users created. Everything after the -- is blindly
+passed to portainer, but you shouldn't pass the option --bind or the options
+to set the password (no check is performed!)." \
+  --prefix PORTAINER \
+  --shift _begin \
+  --options \
+    s,settings OPTION SETTINGS - "Path to settings file in JSON format. This needs to contain all possible keys and their values. Defaults to settings.json in same directory as this script." \
+    p,port,port-number OPTION PORT_NUMBER - "Port number at which portainer should listen for UI and API calls." \
+    t,teams OPTION TEAMS - "Comma separated list of teams to create. When the value starts with a @ sign, the remaining should be the path to a file containing team names, one per line (empty lines and lines starting with a # ignored)" \
+    u,users OPTION USERS - "Path to a file containing a list of users to create. Apart from comments and blank lines, lines should contain colon separated fields: username:password:role:teams. When password is x, one will be generated. role is the role of the user in Portainer: 1: admin, 2: regular user. teams is a colon separated list of teams specifications: team/role, where the role defaults to 2 (regular member), otherwise 1: leader." \
+    passwd,password OPTION ADMIN_PASSWORD - "Cleartext password, you should probably not use this. When empty a password will be generated unless a file is specified." \
+    passwd-file,password-file OPTION ADMIN_PASSWORD_FILE - "Path to a file containing the admin user password, usually a Docker secret or similar." \
+    portainer,binary,bin OPTION BIN - "Name or path to binary for portainer" \
+    h,help FLAG @HELP - "Print this help and exit" \
+  -- "$@"
 
-    --passwd-file | --password-file)
-      PORTAINER_ADMIN_PASSWORD_FILE=$2; shift 2;;
-    --passwd-file=* | --password-file=*)
-      PORTAINER_ADMIN_PASSWORD_FILE="${1#*=}"; shift 1;;
-
-    -s | --settings)
-      PORTAINER_SETTINGS=$2; shift 2;;
-    --settings=*)
-      PORTAINER_SETTINGS="${1#*=}"; shift 1;;
-
-    -t | --teams)
-      PORTAINER_TEAMS=$2; shift 2;;
-    --teams=*)
-      PORTAINER_TEAMS="${1#*=}"; shift 1;;
-
-    -u | --users)
-      PORTAINER_USERS=$2; shift 2;;
-    --users=*)
-      PORTAINER_USERS="${1#*=}"; shift 1;;
-
-    --portainer | --binary | --bin)
-      PORTAINER_BIN=$2; shift 2;;
-    --portainer=* | --binary=* | --bin=*)
-      PORTAINER_BIN="${1#*=}"; shift 1;;
-
-    -v | --verbosity | --verbose)
-      MG_VERBOSITY=$2; shift 2;;
-    --verbosity=* | --verbose=*)
-      # shellcheck disable=2034 # Comes from log module
-      MG_VERBOSITY="${1#*=}"; shift 1;;
-
-    -h | --help)
-      usage "" 0;;
-
-    --)
-      shift; break;;
-    -*)
-      usage "Unknown option: $1 !";;
-    *)
-      break;;
-  esac
-done
+# shellcheck disable=SC2154  # Var is set by parseopts
+shift "$_begin"
 
 if [ -n "$PORTAINER_ADMIN_PASSWORD" ] && [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
   die "You cannot specify both a password and a password file"
@@ -311,6 +236,15 @@ fi
 # The first thing that this process will do is waiting for portainer to be up
 # and running.
 if [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
+  log_trace "Starting settings in background:
+    ${PORTAINER_ROOTDIR%/}/settings.sh \
+    --portainer=http://localhost:${PORTAINER_PORT_NUMBER}/ \
+    --password-file=$PORTAINER_ADMIN_PASSWORD_FILE \
+    --teams-file=$PORTAINER_TEAMS \
+    --users-file=$PORTAINER_USERS \
+    --remove=$ZAP_FILES \
+    --verbose=$MG_VERBOSITY \
+    --settings=$tmp_settings"
   "${PORTAINER_ROOTDIR%/}/settings.sh" \
     --portainer="http://localhost:${PORTAINER_PORT_NUMBER}/" \
     --password-file="$PORTAINER_ADMIN_PASSWORD_FILE" \
@@ -320,6 +254,15 @@ if [ -n "$PORTAINER_ADMIN_PASSWORD_FILE" ]; then
     --verbose="$MG_VERBOSITY" \
     --settings="$tmp_settings" &
 else
+  log_trace "Starting settings in background:
+    ${PORTAINER_ROOTDIR%/}/settings.sh \
+    --portainer=http://localhost:${PORTAINER_PORT_NUMBER}/ \
+    --password=$PORTAINER_PASSWORD \
+    --teams-file=$PORTAINER_TEAMS \
+    --users-file=$PORTAINER_USERS \
+    --remove=$ZAP_FILES \
+    --verbose=$MG_VERBOSITY \
+    --settings=$tmp_settings"
   "${PORTAINER_ROOTDIR%/}/settings.sh" \
     --portainer="http://localhost:${PORTAINER_PORT_NUMBER}/" \
     --password="$PORTAINER_PASSWORD" \
