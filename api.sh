@@ -110,9 +110,9 @@ portainer_api() {
   if [ -n "$JWT" ]; then
     request=${1:-"GET"}
     api=${2:-}
-    shift 2
 
     if [ -n "$api" ]; then
+      shift 2
       curl -sSL \
         --header "Content-Type: application/json" \
         --header "Authorization: Bearer $JWT" \
