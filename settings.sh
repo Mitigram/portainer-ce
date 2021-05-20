@@ -208,14 +208,16 @@ if [ -n "$PORTAINER_USERS" ]; then
         log_info "Created user $username with identifier $id"
       fi
 
-      printf %s\\n "$teams" | tr  ',' '\n' | while IFS= read -r teamspec; do
-        team=$(printf %s\\n "$teamspec" | cut -d "/" -f 1)
-        role=$(printf %s\\n "$teamspec" | cut -d "/" -f 2); # 1: leader, 2: member
-        [ "$role" = "$team" ] && role=2; # Default role is member
-        tid=$(team_create "$team")
-        portainer_api POST /team_memberships \
-            --data "{\"userId\": $id, \"teamID\": $tid, \"role\": $role}" > /dev/null
-      done
+      if [ -n "$teams" ]; then
+        printf %s\\n "$teams" | tr  ',' '\n' | while IFS= read -r teamspec; do
+          team=$(printf %s\\n "$teamspec" | cut -d "/" -f 1)
+          role=$(printf %s\\n "$teamspec" | cut -d "/" -f 2); # 1: leader, 2: member
+          [ "$role" = "$team" ] && role=2; # Default role is member
+          tid=$(team_create "$team")
+          portainer_api POST /team_memberships \
+              --data "{\"userId\": $id, \"teamID\": $tid, \"role\": $role}" > /dev/null
+        done
+      fi
     fi
   done
 fi
