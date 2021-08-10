@@ -14,7 +14,7 @@ for tag in $(img_tags \
                 --filter '^([0-9]+(\.[0-9]+)+|latest)$' \
                 --verbose \
                 -- \
-                "$BASE_IMAGE"); do
+                "$BASE_IMAGE" | sort); do
   if docker image inspect "${DOCKER_REPO}:$tag" >/dev/null 2>&1; then
     echo "============== Pushing ${DOCKER_REPO}:$tag"
     docker push "${DOCKER_REPO}:$tag"
