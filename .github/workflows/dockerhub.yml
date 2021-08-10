@@ -1,4 +1,4 @@
-name: dockerhub
+name: docker
 
 on:
   push:
@@ -26,15 +26,28 @@ jobs:
         with:
           driver-opts: network=host
       -
-        name: Build missing images
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_TOKEN }}
+      -
+        name: Build Docker Hub images
         env:
-          DOCKER_REPO: mitigram/portainer-ce
+          DOCKER_REPO: docker.io/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/build
       -
-        name: Push updated images
+        name: Build GHCR images
         env:
-          DOCKER_REPO: mitigram/portainer-ce
+          DOCKER_REPO: ghcr.io/mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: ./hooks/build
+      -
+        name: Push Docker Hub images
+        env:
+          DOCKER_REPO: docker.io/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -43,9 +56,15 @@ jobs:
             && ./hooks/push \
             && docker logout
       -
+        name: Push GHCR images
+        env:
+          DOCKER_REPO: ghcr.io/mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: ./hooks/push
+      -
         # Note: This uses the password, not the token as this action would
         # otherwise not work.
-        name: Update repo description
+        name: Update repo description at Docker Hub
         uses: peter-evans/dockerhub-description@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
