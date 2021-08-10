@@ -52,11 +52,13 @@
     "AuthorizationURI": "",
     "ClientID": "",
     "ClientSecret": "",
+    "LogoutURI": "",
     "DefaultTeamID": 0,
     "OAuthAutoCreateUsers": true,
     "RedirectURI": "",
     "ResourceURI": "",
     "Scopes": "",
+    "SSO": false,
     "UserIdentifier": ""
   },
   "SnapshotInterval": "5m",
