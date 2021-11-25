@@ -47,17 +47,17 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/build
       -
-        name: Build GHCR images
-        env:
-          DOCKER_REPO: ghcr.io/mitigram/portainer-ce
-          SOURCE_COMMIT: ${{ github.sha }}
-        run: ./hooks/build
-      -
         name: Push Docker Hub images
         env:
           DOCKER_REPO: docker.io/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/push
+      -
+        name: Build GHCR images
+        env:
+          DOCKER_REPO: ghcr.io/mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: ./hooks/build
       -
         name: Push GHCR images
         env:
