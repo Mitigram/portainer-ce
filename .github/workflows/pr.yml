@@ -33,10 +33,12 @@ jobs:
         env:
           DOCKER_REPO: localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
+          TAGS: "latest"
         run: ./hooks/build
       -
         name: Push local images
         env:
           DOCKER_REPO: localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
+          TAGS: "latest"
         run: ./hooks/push
