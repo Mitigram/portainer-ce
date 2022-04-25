@@ -43,7 +43,7 @@ jobs:
           TAGS: "latest"
         run: ./hooks/push
       -
-        name: Build local images again, should be noop
+        name: Check build prevention
         env:
           DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
