@@ -10,17 +10,20 @@ SOURCE_COMMIT=${SOURCE_COMMIT:-$(git log --no-decorate|grep '^commit'|head -n 1|
 # Base image to follow
 BASE_IMAGE=portainer/portainer-ce
 
+# List of tags to build, default is latest and all pure versions
+TAGS=${TAGS:-$(img_tags \
+                --filter '^([0-9]+(\.[0-9]+)+|latest)$' \
+                --verbose \
+                -- \
+                "$BASE_IMAGE" | sort)}
+
 # Login at the Docker hub to be able to access info about the image.
 token=$(img_auth "$DOCKER_REPO")
 
 # For all tags of the original image (as in library image) that this image
 # builds upon, rebuild only if relevant. We use the OCI revision annotation to
 # store/detect whenever it is necessary to rebuild.
-for tag in $(img_tags \
-                --filter '^([0-9]+(\.[0-9]+)+|latest)$' \
-                --verbose \
-                -- \
-                "$BASE_IMAGE"); do
+for tag in $TAGS; do
   # Get the revision out of the org.opencontainers.image.revision label,
   # this will be the label where we store information about this repo (it
   # cannot be the tag, since we tag as the base image).
@@ -33,11 +36,16 @@ for tag in $(img_tags \
   # at the org.opencontainers.image.revision OCI label, but using the same
   # tag as the library image.
   if [ "$revision" != "$SOURCE_COMMIT" ]; then
-    echo "============== No ${DOCKER_REPO}:$tag at $SOURCE_COMMIT"
-    docker build \
+    img=$(img_canonicalize "${DOCKER_REPO}:$tag")
+    echo "============== No $img at $SOURCE_COMMIT" >&2
+    if docker build \
         --build-arg PORTAINER_VERSION="$tag" \
-        --tag "${DOCKER_REPO}:$tag" \
+        --tag "$img" \
         --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
-        .
+        . >&2; then
+      echo "$tag"
+    else
+      exit "$?"
+    fi
   fi
 done

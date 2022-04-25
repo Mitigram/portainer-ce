@@ -10,15 +10,23 @@ SOURCE_COMMIT=${SOURCE_COMMIT:-$(git log --no-decorate|grep '^commit'|head -n 1|
 # Base image to follow
 BASE_IMAGE=portainer/portainer-ce
 
-for tag in $(img_tags \
+# List of tags to push, default is latest and all pure versions
+TAGS=${TAGS:-$(img_tags \
                 --filter '^([0-9]+(\.[0-9]+)+|latest)$' \
                 --verbose \
                 -- \
-                "$BASE_IMAGE" | sort); do
-  if docker image inspect "${DOCKER_REPO}:$tag" >/dev/null 2>&1; then
-    echo "============== Pushing ${DOCKER_REPO}:$tag"
-    docker push "${DOCKER_REPO}:$tag"
+                "$BASE_IMAGE" | sort)}
+
+for tag in $TAGS; do
+  img=$(img_canonicalize "${DOCKER_REPO}:$tag")
+  if docker image inspect "$img" >/dev/null 2>&1; then
+    echo "============== Pushing $img" >&2
+    if docker push "$img" >&2; then
+      echo "$tag"
+    else
+      exit "$?"
+    fi
   else
-    echo "!!!!!!!!!!!!!! ${DOCKER_REPO}:$tag was not built, cannot push!"
+    echo "!!!!!!!!!!!!!! $img was not built, cannot push!" >&2
   fi
 done
