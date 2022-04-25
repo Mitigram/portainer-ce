@@ -36,7 +36,6 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
           TAGS: "latest"
           DOCKER_BUILDKIT: "1"
-          BUILDX_PLATFORMS: "${{ steps.buildx.outputs.platforms }}"
         run: ./hooks/build
       -
         name: Push local images
@@ -52,7 +51,6 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
           TAGS: "latest"
           DOCKER_BUILDKIT: "1"
-          BUILDX_PLATFORMS: "${{ steps.buildx.outputs.platforms }}"
         run: |
           if [ -n "$(./hooks/build)" ]; then
             exit 1
