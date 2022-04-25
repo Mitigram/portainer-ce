@@ -19,9 +19,13 @@ TAGS=${TAGS:-$(img_tags \
 
 for tag in $TAGS; do
   if docker image inspect "${DOCKER_REPO}:$tag" >/dev/null 2>&1; then
-    echo "============== Pushing ${DOCKER_REPO}:$tag"
-    docker push "${DOCKER_REPO}:$tag"
+    echo "============== Pushing ${DOCKER_REPO}:$tag" >&2
+    if docker push "${DOCKER_REPO}:$tag" >&2; then
+      echo "${DOCKER_REPO}:$tag"
+    else
+      exit "$?"
+    fi
   else
-    echo "!!!!!!!!!!!!!! ${DOCKER_REPO}:$tag was not built, cannot push!"
+    echo "!!!!!!!!!!!!!! ${DOCKER_REPO}:$tag was not built, cannot push!" >&2
   fi
 done

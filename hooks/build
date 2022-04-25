@@ -36,11 +36,15 @@ for tag in $TAGS; do
   # at the org.opencontainers.image.revision OCI label, but using the same
   # tag as the library image.
   if [ "$revision" != "$SOURCE_COMMIT" ]; then
-    echo "============== No ${DOCKER_REPO}:$tag at $SOURCE_COMMIT"
-    docker build \
+    echo "============== No ${DOCKER_REPO}:$tag at $SOURCE_COMMIT" >&2
+    if docker build \
         --build-arg PORTAINER_VERSION="$tag" \
         --tag "${DOCKER_REPO}:$tag" \
         --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
-        .
+        . >&2; then
+      echo "${DOCKER_REPO}:$tag"
+    else
+      exit "$?"
+    fi
   fi
 done

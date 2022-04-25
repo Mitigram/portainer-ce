@@ -48,4 +48,7 @@ jobs:
           DOCKER_REPO: localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
           TAGS: "latest"
-        run: ./hooks/build
+        run: |
+          if [ -n "$(./hooks/build)" ]; then
+            exit 1
+          fi
