@@ -18,14 +18,15 @@ TAGS=${TAGS:-$(img_tags \
                 "$BASE_IMAGE" | sort)}
 
 for tag in $TAGS; do
-  if docker image inspect "${DOCKER_REPO}:$tag" >/dev/null 2>&1; then
-    echo "============== Pushing ${DOCKER_REPO}:$tag" >&2
-    if docker push "${DOCKER_REPO}:$tag" >&2; then
-      echo "${DOCKER_REPO}:$tag"
+  img=$(img_canonicalize "${DOCKER_REPO}:$tag")
+  if docker image inspect "$img" >/dev/null 2>&1; then
+    echo "============== Pushing $img" >&2
+    if docker push "$img" >&2; then
+      echo "$tag"
     else
       exit "$?"
     fi
   else
-    echo "!!!!!!!!!!!!!! ${DOCKER_REPO}:$tag was not built, cannot push!" >&2
+    echo "!!!!!!!!!!!!!! $img was not built, cannot push!" >&2
   fi
 done
