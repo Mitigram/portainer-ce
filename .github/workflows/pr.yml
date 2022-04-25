@@ -31,21 +31,21 @@ jobs:
       -
         name: Build local images
         env:
-          DOCKER_REPO: localhost:5000/mitigram/portainer-ce
+          DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
           TAGS: "latest"
         run: ./hooks/build
       -
         name: Push local images
         env:
-          DOCKER_REPO: localhost:5000/mitigram/portainer-ce
+          DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
           TAGS: "latest"
         run: ./hooks/push
       -
         name: Build local images again, should be noop
         env:
-          DOCKER_REPO: localhost:5000/mitigram/portainer-ce
+          DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
           TAGS: "latest"
         run: |

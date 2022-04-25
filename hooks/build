@@ -39,7 +39,7 @@ for tag in $TAGS; do
     echo "============== No ${DOCKER_REPO}:$tag at $SOURCE_COMMIT" >&2
     if docker build \
         --build-arg PORTAINER_VERSION="$tag" \
-        --tag "${DOCKER_REPO}:$tag" \
+        --tag "$(img_canonicalize "${DOCKER_REPO}:$tag")" \
         --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
         . >&2; then
       echo "${DOCKER_REPO}:$tag"
