@@ -45,6 +45,7 @@ for tag in $TAGS; do
           --tag "$img" \
           --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
           --platform "$BUILDX_PLATFORMS" \
+          --load \
           . >&2; then
         echo "$tag"
       else
