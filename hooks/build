@@ -5,6 +5,7 @@
 
 # Set good defaults to allow script to be run by hand
 DOCKER_REPO=${DOCKER_REPO:-"mitigram/portainer-ce"}
+BUILDX_PLATFORMS=${BUILDX_PLATFORMS:-"linux/amd64"}
 SOURCE_COMMIT=${SOURCE_COMMIT:-$(git log --no-decorate|grep '^commit'|head -n 1| awk '{print $2}')}
 
 # Base image to follow
@@ -37,15 +38,29 @@ for tag in $TAGS; do
   # tag as the library image.
   if [ "$revision" != "$SOURCE_COMMIT" ]; then
     img=$(img_canonicalize "${DOCKER_REPO}:$tag")
-    echo "============== No $img at $SOURCE_COMMIT" >&2
-    if docker build \
-        --build-arg PORTAINER_VERSION="$tag" \
-        --tag "$img" \
-        --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
-        . >&2; then
-      echo "$tag"
+    if [ "${DOCKER_BUILDKIT:-0}" = "1" ]; then
+      echo "============== No $img at $SOURCE_COMMIT, building with BuildKit" >&2
+      if docker buildx build \
+          --build-arg PORTAINER_VERSION="$tag" \
+          --tag "$img" \
+          --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
+          --platform "$BUILDX_PLATFORMS" \
+          . >&2; then
+        echo "$tag"
+      else
+        exit "$?"
+      fi
     else
-      exit "$?"
+      echo "============== No $img at $SOURCE_COMMIT, legacy build" >&2
+      if docker build \
+          --build-arg PORTAINER_VERSION="$tag" \
+          --tag "$img" \
+          --label "org.opencontainers.image.revision=$SOURCE_COMMIT" \
+          . >&2; then
+        echo "$tag"
+      else
+        exit "$?"
+      fi
     fi
   fi
 done
