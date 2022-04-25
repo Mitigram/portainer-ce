@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # shellcheck disable=SC1091
-. "$(dirname "$0")/reg-tags/image_tags.sh"
+. "$(dirname "$0")/reg-tags/image_api.sh"
 
 # Set good defaults to allow script to be run by hand
 DOCKER_REPO=${DOCKER_REPO:-"mitigram/portainer-ce"}
