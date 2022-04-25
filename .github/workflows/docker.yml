@@ -45,6 +45,7 @@ jobs:
         env:
           DOCKER_REPO: docker.io/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
+          DOCKER_BUILDKIT: "1"
         run: ./hooks/build
       -
         name: Push Docker Hub images
@@ -57,6 +58,7 @@ jobs:
         env:
           DOCKER_REPO: ghcr.io/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
+          DOCKER_BUILDKIT: "1"
         run: ./hooks/build
       -
         name: Push GHCR images
