@@ -1,14 +1,20 @@
 # Easily Configurable Portainer (CE Edition)
 
-This project creates [mitigram/portainer-ce][mitigram-portainer] a [portainer]
+This [project] creates [mitigram/portainer-ce][mitigram-portainer] a [portainer]
 Docker image that can be configured through a combination of environment
 variables (all starting with `PORTAINER_`), JSON file and command-line options.
 In addition, the project provides ways to initialise teams and users. Team
 creation facilitates matching between LDAP groups and Portainer teams, whenever
 LDAP is used to automatically create users and associate them to existing teams.
+The intent is to ([automatically]) follow the [release] tempo of portainer
+through the image [tags].
 
+  [project]: https://github.com/mitigram/portainer-ce
   [mitigram-portainer]: https://hub.docker.com/r/mitigram/portainer-ce
   [portainer]: https://portainer.io/
+  [release]: https://github.com/portainer/portainer/releases
+  [tags]: https://hub.docker.com/r/mitigram/portainer-ce/tags
+  [automatically]: ./.github/workflows/docker.yml
 
 Provided this image is at `mitigram/portainer-ce`, the following command would:
 
@@ -384,10 +390,10 @@ This image is tuned to be automatically rebuilt whenever:
 + or the content of the git repository controlling the initialisation of this
   image changes.
 
-When run from the DockerHub's infrastructure, detection is performed using
-[hooks](./hooks/) and as described in the [advanced] section of the automated
-builds manual. **But** rebuilding of this image is actually implemented as a set
-of GitHub [actions](./.github/workflows/dockerhub.yml) instead. These actions
-will relay the [hooks](./hooks/) for compatibility reasons.
+Building of this image is implemented as a set of GitHub
+[actions](./.github/workflows/dockerhub.yml). These actions will relay the
+[hooks](./hooks/) for compatibility reasons. These hooks can be used when
+building from the DockerHub infrastructure, as described in the [advanced]
+section of the automated builds manual.
 
   [advanced]: https://docs.docker.com/docker-hub/builds/advanced/
