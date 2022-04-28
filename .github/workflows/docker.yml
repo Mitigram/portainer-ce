@@ -16,6 +16,7 @@ jobs:
       registry: docker.io
       username: ${{ secrets.DOCKERHUB_USERNAME }}
       password: ${{ secrets.DOCKERHUB_TOKEN }}
+      push: false
 
   ghcr:
     uses: ./.github/workflows/_image.yml
@@ -23,6 +24,7 @@ jobs:
       registry: ghcr.io
       username: ${{ secrets.GH_USERNAME }}
       password: ${{ secrets.GH_TOKEN }}
+      push: false
 
   description:
     runs-on: ubuntu-latest
