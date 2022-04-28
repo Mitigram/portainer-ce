@@ -20,6 +20,7 @@ jobs:
       password: ${{ secrets.DOCKERHUB_TOKEN }}
 
   ghcr:
+    name: GHCR
     uses: ./.github/workflows/_image.yml
     with:
       registry: ghcr.io
@@ -30,6 +31,7 @@ jobs:
 
   description:
     runs-on: ubuntu-latest
+    name: DockerHub Description
     needs:
       - hub
     steps:
