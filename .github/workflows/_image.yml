@@ -1,4 +1,4 @@
-name: docker
+name: image (generic)
 
 on:
   workflow_call:
@@ -24,6 +24,12 @@ on:
           Space separated list of original Portainer tags to build/push for.
           When empty, the default, will build/push for all tags for which there
           isn't an existing image for at the registry (for the same commit SHA).
+      push:
+        required: false
+        default: true
+        type: boolean
+        description: |
+          Should the images that were built be pushed to the remote registry?
     secrets:
       username:
         required: false
@@ -86,12 +92,14 @@ jobs:
         run: ./hooks/build
       -
         name: Push image
+        if: inputs.push
         env:
           DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/push
       -
         name: Check build prevention
+        if: inputs.push && inputs.verify
         env:
           DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
           SOURCE_COMMIT: ${{ github.sha }}
