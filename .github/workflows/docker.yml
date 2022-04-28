@@ -14,7 +14,6 @@ jobs:
     uses: ./.github/workflows/_image.yml
     with:
       registry: docker.io
-      push: false
     secrets:
       username: ${{ secrets.DOCKERHUB_USERNAME }}
       password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -24,7 +23,6 @@ jobs:
     uses: ./.github/workflows/_image.yml
     with:
       registry: ghcr.io
-      push: false
     secrets:
       username: ${{ secrets.GH_USERNAME }}
       password: ${{ secrets.GH_TOKEN }}
