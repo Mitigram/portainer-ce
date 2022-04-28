@@ -1,0 +1,96 @@
+name: docker
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        required: false
+        type: string
+        default: http://localhost:5000
+        description: |
+          The Docker registry to build for and push to the image, no trailing
+          slash. This workflow automatically creates a local registry (on port
+          5000) by default.
+      verify:
+        required: false
+        type: boolean
+        default: false
+        description: |
+          Should we verify build/push protection through building a second time?
+      tags:
+        required: false
+        type: string
+        description: |
+          Space separated list of original Portainer tags to build/push for.
+          When empty, the default, will build/push for all tags for which there
+          isn't an existing image for at the registry (for the same commit SHA).
+    secrets:
+      username:
+        required: false
+        description: Username for access to the registry
+      password:
+        required: false
+        description: Password for access to the registry
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    # Create a local registry so we can run everything locally if necessary
+    # (this is the default!), including pushing/pulling from registry if
+    # necessary.
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        id: buildx
+        with:
+          driver-opts: network=host
+      -
+        # Login using the default repository token
+        name: Login to Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+      -
+        name: Export tags
+        if: inputs.tags != ''
+        run: |
+          printf TAGS=%s\\n "${{ inputs.tags }}" >> "$GITHUB_ENV"
+      -
+        name: Build image
+        env:
+          DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+          DOCKER_BUILDKIT: "1"
+        run: ./hooks/build
+      -
+        name: Push image
+        env:
+          DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: ./hooks/push
+      -
+        name: Check build prevention
+        env:
+          DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
+          SOURCE_COMMIT: ${{ github.sha }}
+          DOCKER_BUILDKIT: "1"
+        run: |
+          if [ -n "$(./hooks/build)" ]; then
+            exit 1
+          fi
