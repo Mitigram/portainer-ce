@@ -4,54 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker:
-    runs-on: ubuntu-latest
-    name: Build Locally
-    # Create a local registry so we can run a complete test, including
-    # pushing/pulling from registry if necessary.
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-    steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
-        name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-        with:
-          driver-opts: network=host
-      -
-        name: Build local images
-        env:
-          DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
-          SOURCE_COMMIT: ${{ github.sha }}
-          TAGS: "latest"
-          DOCKER_BUILDKIT: "1"
-        run: ./hooks/build
-      -
-        name: Push local images
-        env:
-          DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
-          SOURCE_COMMIT: ${{ github.sha }}
-          TAGS: "latest"
-        run: ./hooks/push
-      -
-        name: Check build prevention
-        env:
-          DOCKER_REPO: http://localhost:5000/mitigram/portainer-ce
-          SOURCE_COMMIT: ${{ github.sha }}
-          TAGS: "latest"
-          DOCKER_BUILDKIT: "1"
-        run: |
-          if [ -n "$(./hooks/build)" ]; then
-            exit 1
-          fi
+  local:
+    uses: ./.github/workflows/_image.yml
+    with:
+      verify: true
+      tags: "latest"
