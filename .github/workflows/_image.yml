@@ -43,6 +43,11 @@ jobs:
         image: registry:2
         ports:
           - 5000:5000
+    # Secrets are not available to `if`. Instead, we create an environment
+    # variable holding a boolean telling if the username for access to the
+    # registry is empty or not.
+    env:
+      HAVE_ACCESS: ${{ secrets.username != '' }}
     steps:
       -
         name: Checkout
@@ -62,6 +67,7 @@ jobs:
         # Login using the default repository token
         name: Login to Registry
         uses: docker/login-action@v1
+        if: env.HAVE_ACCESS == 'true'
         with:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.username }}
