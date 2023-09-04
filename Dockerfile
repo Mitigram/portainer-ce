@@ -41,7 +41,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 # to the same location as in the original image. This is because the
 # implementation looks for binaries at the assets path.
 COPY --from=gron /usr/local/bin/gron /usr/local/bin/
-COPY --from=portainer /portainer /docker* /kompose /kubectl /
+COPY --from=portainer /portainer /docker* /helm* /kompose* /kubectl* /
 COPY --from=portainer /public /public/
 RUN apk --no-cache add apache2-utils tini curl jq
 
