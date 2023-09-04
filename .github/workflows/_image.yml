@@ -86,7 +86,7 @@ jobs:
       -
         name: Build image
         env:
-          DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
+          DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
           SOURCE_COMMIT: ${{ github.sha }}
           DOCKER_BUILDKIT: "1"
         run: ./hooks/build
@@ -94,14 +94,14 @@ jobs:
         name: Push image
         if: inputs.push
         env:
-          DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
+          DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/push
       -
         name: Check build prevention
         if: inputs.push && inputs.verify
         env:
-          DOCKER_REPO: ${{ inputs.registry }}/mitigram/portainer-ce
+          DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
           SOURCE_COMMIT: ${{ github.sha }}
           DOCKER_BUILDKIT: "1"
         run: |
