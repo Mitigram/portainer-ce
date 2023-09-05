@@ -92,14 +92,14 @@ jobs:
         run: ./hooks/build
       -
         name: Push image
-        if: inputs.push
+        if: inputs.push && env.HAVE_ACCESS == 'true'
         env:
           DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/push
       -
         name: Check build prevention
-        if: inputs.push && inputs.verify
+        if: inputs.push && inputs.verify && env.HAVE_ACCESS == 'true'
         env:
           DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
           SOURCE_COMMIT: ${{ github.sha }}
