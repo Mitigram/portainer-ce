@@ -32,6 +32,11 @@ jobs:
     name: DockerHub Description
     needs:
       - hub
+    # Secrets are not available to `if`. Instead, we create an environment
+    # variable holding a boolean telling if the username for access to the
+    # registry is empty or not.
+    env:
+      HAVE_ACCESS: ${{ secrets.DOCKERHUB_USERNAME != '' }}
     steps:
       -
         name: Checkout
@@ -43,6 +48,7 @@ jobs:
         # otherwise not work.
         name: Update repo description at Docker Hub
         uses: peter-evans/dockerhub-description@v2
+        if: env.HAVE_ACCESS == 'true'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
