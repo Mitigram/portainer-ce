@@ -79,6 +79,12 @@ jobs:
           username: ${{ secrets.username }}
           password: ${{ secrets.password }}
       -
+        name: Docker Image Name
+        id: image
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{ github.repository }}
+      -
         name: Export tags
         if: inputs.tags != ''
         run: |
@@ -86,7 +92,7 @@ jobs:
       -
         name: Build image
         env:
-          DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
+          DOCKER_REPO: ${{ inputs.registry }}/${{ steps.image.outputs.lowercase }}
           SOURCE_COMMIT: ${{ github.sha }}
           DOCKER_BUILDKIT: "1"
         run: ./hooks/build
@@ -94,14 +100,14 @@ jobs:
         name: Push image
         if: inputs.push && env.HAVE_ACCESS == 'true'
         env:
-          DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
+          DOCKER_REPO: ${{ inputs.registry }}/${{ steps.image.outputs.lowercase }}
           SOURCE_COMMIT: ${{ github.sha }}
         run: ./hooks/push
       -
         name: Check build prevention
         if: inputs.push && inputs.verify && env.HAVE_ACCESS == 'true'
         env:
-          DOCKER_REPO: ${{ inputs.registry }}/${{ github.repository }}
+          DOCKER_REPO: ${{ inputs.registry }}/${{ steps.image.outputs.lowercase }}
           SOURCE_COMMIT: ${{ github.sha }}
           DOCKER_BUILDKIT: "1"
         run: |
