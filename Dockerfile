@@ -7,7 +7,7 @@ FROM portainer/portainer-ce:${PORTAINER_VERSION} AS portainer
 # SECOND STAGE: gron makes JSON greppable and is able to convert back to JSON
 # from its internal greppable representation. The version to install can be
 # controlled through the build-time argument GRON_VERSION.
-FROM alpine:3.13.5 AS gron
+FROM alpine:3.18.3 AS gron
 
 # Copy the installer utilities into the image
 COPY lib/bininstall/*.sh /usr/local/bin/
@@ -21,7 +21,7 @@ RUN tarinstall.sh -v -x gron https://github.com/tomnomnom/gron/releases/download
 # access Alpine's library of packages and install the ones we need for the
 # implementation of our entrypoint and initialisation logic. gron requires
 # glibc.
-FROM yanzinetworks/alpine:3.13.5
+FROM yanzinetworks/alpine:3.18.3
 
 
 # OCI Annotation: https://github.com/opencontainers/image-spec/blob/master/annotations.md
@@ -41,7 +41,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 # to the same location as in the original image. This is because the
 # implementation looks for binaries at the assets path.
 COPY --from=gron /usr/local/bin/gron /usr/local/bin/
-COPY --from=portainer /portainer /docker* /kompose /kubectl /
+COPY --from=portainer /portainer /docker* /helm* /kompose* /kubectl* /
 COPY --from=portainer /public /public/
 RUN apk --no-cache add apache2-utils tini curl jq
 
